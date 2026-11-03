@@ -1,6 +1,19 @@
 const $ = (selector, scope = document) => scope.querySelector(selector);
 const $$ = (selector, scope = document) => [...scope.querySelectorAll(selector)];
 
+// Add the two live Cloudbeds Booking Engine URLs here when Levata's
+// property inventory is published. Until then, each choice falls back to
+// its room overview so guests never land on an incomplete booking screen.
+const CLOUDBEDS_BOOKING_URLS = {
+  postpartum: '',
+  surgical: ''
+};
+
+$$('[data-cloudbeds-stay]').forEach(link => {
+  const bookingUrl = CLOUDBEDS_BOOKING_URLS[link.dataset.cloudbedsStay];
+  if (bookingUrl) link.href = bookingUrl;
+});
+
 const header = $('.site-header');
 const menuButton = $('.menu-button');
 if (header && menuButton) {
@@ -9,6 +22,18 @@ if (header && menuButton) {
     menuButton.setAttribute('aria-expanded', String(open));
   });
   $$('.nav a').forEach(link => link.addEventListener('click', () => header.classList.remove('menu-open')));
+}
+
+const stayPicker = $('#stay-picker-modal');
+if (stayPicker) {
+  $$('.stay-picker-trigger').forEach(button => button.addEventListener('click', () => {
+    header?.classList.remove('menu-open');
+    menuButton?.setAttribute('aria-expanded', 'false');
+    stayPicker.showModal();
+  }));
+  $('.stay-picker-close', stayPicker)?.addEventListener('click', () => stayPicker.close());
+  stayPicker.addEventListener('click', event => { if (event.target === stayPicker) stayPicker.close(); });
+  stayPicker.addEventListener('keydown', event => { if (event.key === 'Escape') stayPicker.close(); });
 }
 
 const modal = $('#rsvp-modal');
